@@ -11,11 +11,11 @@ readable format.
 
 Arguments:
 
--c, --csv print CSV header
--d, --debug print debugging information
--f, --field search field n
--p, --number prepend field numbers to output
--V, --version output version information and exit
+ -c, --csv print CSV header
+ -d, --debug print debugging information
+ -f, --field search field n
+ -p, --number prepend field numbers to output
+ -V, --version output version information and exit
 
 Report bugs to <david@soinkleined.com>
 
