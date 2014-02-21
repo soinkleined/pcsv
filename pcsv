@@ -1,0 +1,139 @@
+#!/usr/bin/env perl
+
+#####################################
+#
+# Author: David Klein
+#
+# Contact: david@soinkleined.com
+#
+# Requires: delimited file with column headers
+#
+# Version: 1.0 - 2014-02-19 - David Klein <david@soinkleined.com>
+#          * Initial release
+#
+#####################################
+
+use strict;
+use Getopt::Long qw(:config no_ignore_case bundling);
+
+my $InFile='sample.csv';
+my $altInFile;
+my @entry;
+my $found=0;
+my $field=0;
+my $debug=0;
+my $csv=0;
+my $number=0;
+my $version='1.0';
+
+GetOptions ('d|debug!' => \$debug,
+'c|csv!' => \$csv,
+'f|file=s' => \$altInFile,
+'F|field=i' => \$field,
+'h|help' => \&help,
+'p|number!' => \$number,
+'V|version' => \&version
+        );
+
+my $argString=shift;
+my $searchString;
+
+&prterr("No argument given!  Please use -h for help.", "1") unless $argString;
+
+if ($altInFile){
+    $InFile=$altInFile;
+}
+# Allow for glob style searches
+# Other string combos need to be escaped or they'll break the search
+if ($argString =~ /\*/){
+   $argString =~ s/\*/\.\*/g;
+}
+
+$searchString=$argString;
+
+open FILE, "$InFile" || &prterr("Cannot open \"$InFile\" : $!","1");
+chomp(my $line=<FILE>);
+$line =~ s/\"//g;
+if ($csv){
+    print $line."\n";
+}
+
+
+my @fields=split(/,/,$line); # Current delimiter is "," <- change from ", "
+my $lineCounter=0;
+$field-- if $field;
+while (<FILE>){
+s/\"//g;
+    $lineCounter++;
+    next if (! $field && ! /^$searchString,/i);
+#Convert field number to Array element
+    chomp(@entry=split(/,/,$_));
+    if ($entry[$field] =~ /^$searchString$/i){
+$found++;
+    if ($csv) {
+  print;
+    }else {
+my $i=0;
+for (@fields){
+printf("%2d: ", $i+1) if $number;
+printf("%s: %s\n", $_, $entry[$i]);
+$i++;
+}
+}
+    }
+}
+close FILE;
+
+if ($debug){
+    print <<EOF;
++----------------------------------------
++ DEBUG
++----------------------------------------
++ Matching Entries: $found
++ Number of Entries: $lineCounter
++ Filename: $InFile
++ Search Field: $fields[$field]
++ Search String: /^$searchString\$/i
++----------------------------------------
+EOF
+}
+
+&prterr("$argString not found!", "1") unless ($found);
+
+sub prterr{
+    my $Message=shift;
+    my $ExitCode=shift;
+    print "<E> $Message\n";
+    exit $ExitCode;
+}
+
+sub help{
+    print <<EOF;
+
+Usage: mypac [-cd] [-o|-p] hostname
+       mypac [-cd] [-o|-p] -f n string
+       mypac [-cd] [-o|-p] -n -f n string
+       mypac -V
+
+Queries information in $InFile
+and file and displays it in a
+readable format.
+
+Arguments:
+-c, --csv print CSV header
+-d, --debug print debugging information
+-f, --field search field n
+-p, --number prepend field numbers to output
+-V, --version output version information and exit
+
+Report bugs to <david\@soinkleined.com>
+
+EOF
+    exit 0;
+}
+sub version{
+    print <<EOF;
+$version
+EOF
+    exit 0;
+}
