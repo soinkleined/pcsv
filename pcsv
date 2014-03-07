@@ -129,8 +129,7 @@ Usage: $cmd [-cdp] string
        $cmd -V
 
 Queries information in $InFile
-and file and displays it in a
-readable format.
+and displays it in a readable format.
 
 Arguments:
  -c, --csv		print CSV header

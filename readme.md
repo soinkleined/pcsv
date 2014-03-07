@@ -4,9 +4,8 @@ Usage:
        pcsv.new [-cdp] -F n string
        pcsv.new -V
 
-Queries information in sample.csv
-and file and displays it in a
-readable format.
+Queries information in csv file and
+displays it in a readable format.
 
 Arguments:
 
