@@ -135,8 +135,8 @@ readable format.
 Arguments:
  -c, --csv		print CSV header
  -d, --debug		print debugging information
- -F, --file		parse file
- -f, --field		search field n
+ -f, --file		parse file
+ -F, --field		search field n
  -p, --number		prepend field numbers to output
  -V, --version		output version information and exit
 
