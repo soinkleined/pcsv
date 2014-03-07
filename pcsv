@@ -1,5 +1,4 @@
 #!/usr/bin/env perl
-
 #####################################
 #
 # Author: David Klein
@@ -8,12 +7,18 @@
 #
 # Requires: delimited file with column headers
 #
+# Version: 1.1 - 2014-03-07 - David Klein <david@soinkleined.com>
+#          * Added field length formatting
+#          * Added sample csv
+#          * Corrected help output
+#
 # Version: 1.0 - 2014-02-19 - David Klein <david@soinkleined.com>
 #          * Initial release
 #
 #####################################
 
 use strict;
+use File::Basename;
 use Getopt::Long qw(:config no_ignore_case bundling);
 
 my $InFile='sample.csv';
@@ -24,15 +29,16 @@ my $field=0;
 my $debug=0;
 my $csv=0;
 my $number=0;
-my $version='1.0';
+my $cmd=basename($0);
+my $version='1.1';
 
 GetOptions ('d|debug!' => \$debug,
-'c|csv!' => \$csv,
-'f|file=s' => \$altInFile,
-'F|field=i' => \$field,
-'h|help' => \&help,
-'p|number!' => \$number,
-'V|version' => \&version
+			'c|csv!' => \$csv,
+			'f|file=s' => \$altInFile,
+			'F|field=i' => \$field,
+			'h|help' => \&help,
+			'p|number!' => \$number,
+			'V|version' => \&version
         );
 
 my $argString=shift;
@@ -42,12 +48,12 @@ my $searchString;
 
 if ($altInFile){
     $InFile=$altInFile;
-}
+} 
 # Allow for glob style searches
 # Other string combos need to be escaped or they'll break the search
 if ($argString =~ /\*/){
    $argString =~ s/\*/\.\*/g;
-}
+} 
 
 $searchString=$argString;
 
@@ -60,6 +66,14 @@ if ($csv){
 
 
 my @fields=split(/,/,$line); # Current delimiter is "," <- change from ", "
+my $length;
+for (@fields){
+    my $elementLength=length($_);
+    if ($elementLength > $length){
+	$length=$elementLength;
+    }
+
+}
 my $lineCounter=0;
 $field-- if $field;
 while (<FILE>){
@@ -69,17 +83,17 @@ s/\"//g;
 #Convert field number to Array element
     chomp(@entry=split(/,/,$_));
     if ($entry[$field] =~ /^$searchString$/i){
-$found++;
-    if ($csv) {
-  print;
-    }else {
-my $i=0;
-for (@fields){
-printf("%2d: ", $i+1) if $number;
-printf("%s: %s\n", $_, $entry[$i]);
-$i++;
-}
-}
+	$found++;
+    	if ($csv) {
+  		print;
+    	}else {
+		my $i=0;
+		for (@fields){
+			printf("%2d: ", $i+1) if $number;
+			printf("%-$length"."s : %s\n", $_, $entry[$i]);
+			$i++;
+		} 
+	}
     }
 }
 close FILE;
@@ -110,21 +124,21 @@ sub prterr{
 sub help{
     print <<EOF;
 
-Usage: mypac [-cd] [-o|-p] hostname
-       mypac [-cd] [-o|-p] -f n string
-       mypac [-cd] [-o|-p] -n -f n string
-       mypac -V
+Usage: $cmd [-cdp] string
+       $cmd [-cdp] -F n string
+       $cmd -V
 
 Queries information in $InFile
 and file and displays it in a
 readable format.
 
 Arguments:
--c, --csv print CSV header
--d, --debug print debugging information
--f, --field search field n
--p, --number prepend field numbers to output
--V, --version output version information and exit
+ -c, --csv		print CSV header
+ -d, --debug		print debugging information
+ -F, --file		parse file
+ -f, --field		search field n
+ -p, --number		prepend field numbers to output
+ -V, --version		output version information and exit
 
 Report bugs to <david\@soinkleined.com>
 
